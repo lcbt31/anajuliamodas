@@ -9,8 +9,14 @@
 .product-card-photo{display:block;width:100%;padding:0;border:0;background:transparent;cursor:pointer;text-align:inherit}
 .product-card-photo .product-image{width:100%;height:330px}
 .product-card-photo .product-image>img{width:100%;height:100%;object-fit:cover;display:block}
-.product-card-photo:hover img{transform:scale(1.025)}
-.product-card-photo img{transition:transform .25s ease}
+.product-card-photo:hover img,.product-card-photo:focus-visible img{transform:scale(1.04)}
+.product-card-photo img{transition:transform .3s ease}
+/* Sinalização clara de que a foto abre os detalhes */
+.product-card-cta{position:absolute;left:50%;bottom:18px;transform:translate(-50%,10px);z-index:4;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:12px 18px;border-radius:50px;background:rgba(255,255,255,.96);color:#95335e;font-size:12px;font-weight:700;letter-spacing:.055em;box-shadow:0 5px 18px #24131a38;opacity:0;transition:opacity .22s ease,transform .22s ease;pointer-events:none}
+.product-card-photo:is(:hover,:focus-visible) .product-card-cta{opacity:1;transform:translate(-50%,0)}
+.product-card-photo:is(:hover,:focus-visible) .product-image::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(42,14,30,.24));pointer-events:none}
+@media(hover:none){.product-card-cta{opacity:1;transform:translate(-50%,0);bottom:12px;padding:10px 14px;font-size:11px}.product-card-photo:hover img{transform:none}}
+@media(prefers-reduced-motion:reduce){.product-card-photo img,.product-card-cta{transition:none}}
 .product-card-photo:focus-visible,.product-name-link:focus-visible,.detail-close:focus-visible,.detail-thumbs button:focus-visible{outline:3px solid #bc467f;outline-offset:3px}
 .product .product-info{padding:16px 12px 20px}
 .product-name-link{display:block;width:100%;padding:0;border:0;background:none;text-align:center;color:inherit;cursor:pointer;font:inherit}
@@ -87,7 +93,7 @@ function card(p){
   const photo=galleryPhotos(p,0)[0];
   const picture=photo?`<img src="${safe(photo)}" alt="${safe(p.name)}" loading="lazy">`:`<div class="placeholder">${icon}<span>Foto do produto<br>em breve</span></div>`;
   const sizes=allSizes(p);
-  return `<article class="product" data-product-id="${safe(p.id)}"><button type="button" class="product-card-photo" data-open-product="${safe(p.id)}" aria-label="Ver detalhes e fotos de ${safe(p.name)}"><div class="product-image">${picture}${p.destaque?'<span class="tag">DESTAQUE</span>':''}</div></button><div class="product-info"><h3><button type="button" class="product-name-link" data-open-product="${safe(p.id)}">${safe(p.name)}</button></h3><div class="price">${safe(formatPrice(p))}</div><div class="card-sizes">${sizes.length?'Tamanhos: '+safe(sizes.join(' • ')):'Tamanhos sob consulta'}</div><div class="product-card-hint">Toque na foto para ver detalhes</div></div></article>`;
+  return `<article class="product" data-product-id="${safe(p.id)}"><button type="button" class="product-card-photo" data-open-product="${safe(p.id)}" title="Abrir fotos e detalhes do produto" aria-label="Ver detalhes e fotos de ${safe(p.name)}"><div class="product-image">${picture}${p.destaque?'<span class="tag">DESTAQUE</span>':''}<span class="product-card-cta" aria-hidden="true">⌕ &nbsp; VER DETALHES →</span></div></button><div class="product-info"><h3><button type="button" class="product-name-link" data-open-product="${safe(p.id)}">${safe(p.name)}</button></h3><div class="price">${safe(formatPrice(p))}</div><div class="card-sizes">${sizes.length?'Tamanhos: '+safe(sizes.join(' • ')):'Tamanhos sob consulta'}</div></div></article>`;
 }
 function render(){const found=catalog.filter(p=>(filter==='Todos'||p.cat===filter)&&`${p.name} ${p.cat} ${variants(p).map(v=>v.cor).join(' ')}`.toLowerCase().includes(search.toLowerCase()));document.getElementById('products').innerHTML=found.map(card).join('')||'<p>Nenhum item encontrado.</p>';document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter));document.getElementById('promos').innerHTML=(catalog.filter(p=>p.destaque).length?catalog.filter(p=>p.destaque):catalog.slice(0,4)).map(card).join('')}
 function setFilter(v){filter=v;render()}
